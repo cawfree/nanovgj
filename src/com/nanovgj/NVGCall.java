@@ -1,6 +1,6 @@
 package com.nanovgj;
 
-import javax.media.opengl.GL2ES2;
+import com.github.cawfree.boilerplate.IGLES20;
 
 public abstract class NVGCall {
 	
@@ -18,36 +18,36 @@ public abstract class NVGCall {
 		}
 
 		@Override
-		public final void onRenderGraphics(final INanoVG pNanoVG, final GL2ES2 pGL2ES2) {
-			pGL2ES2.glEnable(GL2ES2.GL_STENCIL_TEST);
-			pGL2ES2.glStencilMask(0xFF);
-			pGL2ES2.glStencilFunc(GL2ES2.GL_ALWAYS, 0, 0xFF);
-			pGL2ES2.glColorMask(false, false, false, false);
+		public final void onRenderGraphics(final INanoVG pNanoVG, final IGLES20 pGLES20) {
+			pGLES20.glEnable(IGLES20.GL_STENCIL_TEST);
+			pGLES20.glStencilMask(0xFF);
+			pGLES20.glStencilFunc(IGLES20.GL_ALWAYS, 0, 0xFF);
+			pGLES20.glColorMask(false, false, false, false);
 			pNanoVG.onSetUniforms(pGL2ES2, this.getUniformArray1(), null);
 			
-			pGL2ES2.glStencilOpSeparate(GL2ES2.GL_FRONT, GL2ES2.GL_KEEP, GL2ES2.GL_KEEP, GL2ES2.GL_INCR_WRAP);
-			pGL2ES2.glStencilOpSeparate(GL2ES2.GL_BACK,  GL2ES2.GL_KEEP, GL2ES2.GL_KEEP, GL2ES2.GL_DECR_WRAP);
-			pGL2ES2.glDisable(GL2ES2.GL_CULL_FACE);
+			pGLES20.glStencilOpSeparate(IGLES20.GL_FRONT, IGLES20.GL_KEEP, IGLES20.GL_KEEP, IGLES20.GL_INCR_WRAP);
+			pGLES20.glStencilOpSeparate(IGLES20.GL_BACK,  IGLES20.GL_KEEP, IGLES20.GL_KEEP, IGLES20.GL_DECR_WRAP);
+			pGLES20.glDisable(IGLES20.GL_CULL_FACE);
 			
-			for(final NVGGLPath lNVGPath: this.getNVGPaths()) { pGL2ES2.glDrawArrays(GL2ES2.GL_TRIANGLE_FAN, (lNVGPath.getFillOffset() / 4), lNVGPath.getFillCount()); }
+			for(final NVGGLPath lNVGPath: this.getNVGPaths()) { pGLES20.glDrawArrays(IGLES20.GL_TRIANGLE_FAN, (lNVGPath.getFillOffset() / 4), lNVGPath.getFillCount()); }
 			
-			pGL2ES2.glEnable(GL2ES2.GL_CULL_FACE);
+			pGLES20.glEnable(IGLES20.GL_CULL_FACE);
 			/* Draw anti-aliased pixels. */
-			pGL2ES2.glColorMask(true, true, true, true);
+			pGLES20.glColorMask(true, true, true, true);
 			
-			pNanoVG.onSetUniforms(pGL2ES2, this.getUniformArray2(), null);
-			pGL2ES2.glStencilFunc(GL2ES2.GL_EQUAL, 0, 0xFF);
-			pGL2ES2.glStencilOp(GL2ES2.GL_KEEP, GL2ES2.GL_KEEP, GL2ES2.GL_KEEP);
+			pNanoVG.onSetUniforms(pGLES20, this.getUniformArray2(), null);
+			pGLES20.glStencilFunc(IGLES20.GL_EQUAL, 0, 0xFF);
+			pGLES20.glStencilOp(IGLES20.GL_KEEP, IGLES20.GL_KEEP, IGLES20.GL_KEEP);
 			
 			/* Draw fringes. */
-			for(final NVGGLPath lNVGPath: this.getNVGPaths()) { pGL2ES2.glDrawArrays(GL2ES2.GL_TRIANGLE_STRIP, (lNVGPath.getStrokeOffset() / 4), lNVGPath.getStrokeCount()); }
+			for(final NVGGLPath lNVGPath: this.getNVGPaths()) { pGLES20.glDrawArrays(IGLES20.GL_TRIANGLE_STRIP, (lNVGPath.getStrokeOffset() / 4), lNVGPath.getStrokeCount()); }
 			
-			pGL2ES2.glStencilFunc(GL2ES2.GL_NOTEQUAL, 0, 0xFF);
-			pGL2ES2.glStencilOp(GL2ES2.GL_ZERO, GL2ES2.GL_ZERO, GL2ES2.GL_ZERO);
+			pGLES20.glStencilFunc(IGLES20.GL_NOTEQUAL, 0, 0xFF);
+			pGLES20.glStencilOp(IGLES20.GL_ZERO, IGLES20.GL_ZERO, IGLES20.GL_ZERO);
 			
-			pGL2ES2.glDrawArrays(GL2ES2.GL_TRIANGLES, (this.getTriangleOffset() / 4), this.getTriangleCount());
+			pGLES20.glDrawArrays(IGLES20.GL_TRIANGLES, (this.getTriangleOffset() / 4), this.getTriangleCount());
 			
-			pGL2ES2.glDisable(GL2ES2.GL_STENCIL_TEST);
+			pGLES20.glDisable(IGLES20.GL_STENCIL_TEST);
 		}
 		
 		private final float[] getUniformArray1() {
@@ -67,10 +67,10 @@ public abstract class NVGCall {
 		}
 
 		@Override
-		public final void onRenderGraphics(final INanoVG pNanoVG, final GL2ES2 pGL2ES2) {
+		public final void onRenderGraphics(final INanoVG pNanoVG, final IGLES20 pGLES20) {
 			//glnvg__setUniforms(gl, call->uniformOffset, call->image);
-			for(final NVGGLPath lNVGPath: this.getNVGPaths()) { pGL2ES2.glDrawArrays(GL2ES2.GL_TRIANGLE_FAN,   (lNVGPath.getFillOffset()   / 4), lNVGPath.getFillCount());   }
-			for(final NVGGLPath lNVGPath: this.getNVGPaths()) { pGL2ES2.glDrawArrays(GL2ES2.GL_TRIANGLE_STRIP, (lNVGPath.getStrokeOffset() / 4), lNVGPath.getStrokeCount()); }
+			for(final NVGGLPath lNVGPath: this.getNVGPaths()) { pGLES20.glDrawArrays(IGLES20.GL_TRIANGLE_FAN,   (lNVGPath.getFillOffset()   / 4), lNVGPath.getFillCount());   }
+			for(final NVGGLPath lNVGPath: this.getNVGPaths()) { pGLES20.glDrawArrays(IGLES20.GL_TRIANGLE_STRIP, (lNVGPath.getStrokeOffset() / 4), lNVGPath.getStrokeCount()); }
 		}
 		
 	}
@@ -89,27 +89,27 @@ public abstract class NVGCall {
 		}
 
 		@Override
-		public final void onRenderGraphics(final INanoVG pNanoVG, final GL2ES2 pGL2ES2) {
-			pGL2ES2.glEnable(GL2ES2.GL_STENCIL_TEST);
-			pGL2ES2.glStencilMask(0xFF);
+		public final void onRenderGraphics(final INanoVG pNanoVG, final IGLES20 pGLES20) {
+			pGLES20.glEnable(IGLES20.GL_STENCIL_TEST);
+			pGLES20.glStencilMask(0xFF);
 			/* Fill stroke base without overlap. */
-			pGL2ES2.glStencilFunc(GL2ES2.GL_EQUAL, 0x0, 0xff);
-			pGL2ES2.glStencilOp(GL2ES2.GL_KEEP, GL2ES2.GL_KEEP, GL2ES2.GL_INCR);
-			pNanoVG.onSetUniforms(pGL2ES2, this.getUniform2(), this.getNVGImage());
-			for(final NVGGLPath lNVGPath: this.getNVGPaths()) { pGL2ES2.glDrawArrays(GL2ES2.GL_TRIANGLE_STRIP, (lNVGPath.getStrokeOffset() / 4), lNVGPath.getStrokeCount()); }
+			pGLES20.glStencilFunc(IGLES20.GL_EQUAL, 0x0, 0xff);
+			pGLES20.glStencilOp(IGLES20.GL_KEEP, IGLES20.GL_KEEP, IGLES20.GL_INCR);
+			pNanoVG.onSetUniforms(pGLES20, this.getUniform2(), this.getNVGImage());
+			for(final NVGGLPath lNVGPath: this.getNVGPaths()) { pGLES20.glDrawArrays(IGLES20.GL_TRIANGLE_STRIP, (lNVGPath.getStrokeOffset() / 4), lNVGPath.getStrokeCount()); }
 			/* Draw antialiased pixels. */
-			pNanoVG.onSetUniforms(pGL2ES2, this.getUniform1(), this.getNVGImage());
-			pGL2ES2.glStencilOp(GL2ES2.GL_KEEP, GL2ES2.GL_KEEP, GL2ES2.GL_KEEP);
-			for(final NVGGLPath lNVGPath: this.getNVGPaths()) { pGL2ES2.glDrawArrays(GL2ES2.GL_TRIANGLE_STRIP, (lNVGPath.getStrokeOffset() / 4), lNVGPath.getStrokeCount()); }
+			pNanoVG.onSetUniforms(pGLES20, this.getUniform1(), this.getNVGImage());
+			pGLES20.glStencilOp(IGLES20.GL_KEEP, IGLES20.GL_KEEP, IGLES20.GL_KEEP);
+			for(final NVGGLPath lNVGPath: this.getNVGPaths()) { pGLES20.glDrawArrays(IGLES20.GL_TRIANGLE_STRIP, (lNVGPath.getStrokeOffset() / 4), lNVGPath.getStrokeCount()); }
 			//* Clear stencil buffer. */
-			pGL2ES2.glColorMask(false, false, false, false);
-			pGL2ES2.glStencilFunc(GL2ES2.GL_ALWAYS, 0, 0xFF);
-			pGL2ES2.glStencilOp(GL2ES2.GL_ZERO, GL2ES2.GL_ZERO, GL2ES2.GL_ZERO);
+			pGLES20.glColorMask(false, false, false, false);
+			pGLES20.glStencilFunc(IGLES20.GL_ALWAYS, 0, 0xFF);
+			pGLES20.glStencilOp(IGLES20.GL_ZERO, IGLES20.GL_ZERO, IGLES20.GL_ZERO);
 
-			for(final NVGGLPath lNVGPath: this.getNVGPaths()) { pGL2ES2.glDrawArrays(GL2ES2.GL_TRIANGLE_STRIP, (lNVGPath.getStrokeOffset() / 4), lNVGPath.getStrokeCount()); }
+			for(final NVGGLPath lNVGPath: this.getNVGPaths()) { pGLES20.glDrawArrays(IGLES20.GL_TRIANGLE_STRIP, (lNVGPath.getStrokeOffset() / 4), lNVGPath.getStrokeCount()); }
 			
-			pGL2ES2.glColorMask(true, true, true, true);
-			pGL2ES2.glDisable(GL2ES2.GL_STENCIL_TEST);
+			pGLES20.glColorMask(true, true, true, true);
+			pGLES20.glDisable(IGLES20.GL_STENCIL_TEST);
 		}
 		
 		private final float[] getUniform1() {
@@ -129,9 +129,9 @@ public abstract class NVGCall {
 		}
 
 		@Override
-		public final void onRenderGraphics(final INanoVG pNanoVG, final GL2ES2 pGL2ES2) {
+		public final void onRenderGraphics(final INanoVG pNanoVG, final IGLES20 pGLES20) {
 			//glnvg__setUniforms(gl, call->uniformOffset, call->image);
-			pGL2ES2.glDrawArrays(GL2ES2.GL_TRIANGLES, (this.getTriangleOffset() / 4), this.getTriangleCount());
+			pGLES20.glDrawArrays(IGLES20.GL_TRIANGLES, (this.getTriangleOffset() / 4), this.getTriangleCount());
 		}
 		
 	}
@@ -150,7 +150,7 @@ public abstract class NVGCall {
 		this.mNVGImage       = pNVGImage;
 	}
 	
-	public abstract void onRenderGraphics(final INanoVG pNanoVG, final GL2ES2 pGL2ES2);
+	public abstract void onRenderGraphics(final INanoVG pNanoVG, final IGLES20 pGLES20);
 	
 	public final NVGGLPath[] getNVGPaths() {
 		return this.mNVGPaths;

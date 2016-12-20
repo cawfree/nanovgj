@@ -5,14 +5,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.media.opengl.GL2ES2;
-import javax.media.opengl.GLAutoDrawable;
-import javax.media.opengl.GLEventListener;
+import com.github.cawfree.boilerplate.IGLEventListener;
+import com.github.cawfree.boilerplate.IGLES20;
 
 import com.nanovgj.exception.NVGException;
 import com.nanovgj.global.NVGGlobal;
 
-public class NanoVG implements GLEventListener, INanoVG {
+public class NanoVG implements IGLEventListener<IGLES20>, INanoVG {
 	
 	/* GLSL 130+ uses 'in' and 'out' instead of attribute and varying. */
 	private static final String HEADER_VERSION_MIGRATION = 
@@ -139,40 +138,40 @@ public class NanoVG implements GLEventListener, INanoVG {
 		+"\n"+"}";
 			
 	
-	private static final String onFetchShaderError(final GL2ES2 pGL2ES2, final int pShaderId) {
+	private static final String onFetchShaderError(final IGLES20 pGLES20, final int pShaderId) {
           byte[] lErrorLog = new byte[255];
-          pGL2ES2.glGetShaderInfoLog(pShaderId, (lErrorLog.length), (int[])null, 0, lErrorLog, 0);
+          pGLES20.glGetShaderInfoLog(pShaderId, (lErrorLog.length), (int[])null, 0, lErrorLog, 0);
           return new String(lErrorLog);
 	}
 	
-	private static final String onFetchProgramError(final GL2ES2 pGL2ES2, final int pProgramId) {
+	private static final String onFetchProgramError(final IGLES20 pGLES20, final int pProgramId) {
         byte[] lErrorLog = new byte[255];
-        pGL2ES2.glGetProgramInfoLog(pProgramId, (lErrorLog.length), (int[])null, 0, lErrorLog, 0);
+        pGLES20.glGetProgramInfoLog(pProgramId, (lErrorLog.length), (int[])null, 0, lErrorLog, 0);
         return new String(lErrorLog);
 	}
 	
-	private static final void onFetchGLError(final GL2ES2 pGL2ES2) {
-		final int lError = pGL2ES2.glGetError();
-		if(lError != GL2ES2.GL_NO_ERROR) {
+	private static final void onFetchGLError(final IGLES20 pGLES20) {
+		final int lError = pGLES20.glGetError();
+		if(lError != IGLES20.GL_NO_ERROR) {
 			System.err.println("OpenGL error " + Integer.toHexString(lError) + ".");
 		}
 	}
 	
-	private static final void onCompileShader(final GL2ES2 pGL2ES2, final int pShaderId, final int[] pStatusBuffer) {
+	private static final void onCompileShader(final IGLES20 pGLES20, final int pShaderId, final int[] pStatusBuffer) {
 		/* Vertex Shader compilation. */
-		pGL2ES2.glCompileShader(pShaderId);
-		pGL2ES2.glGetShaderiv(pShaderId, GL2ES2.GL_COMPILE_STATUS, pStatusBuffer, 0);
-		if(pStatusBuffer[0] == GL2ES2.GL_NONE) { 
-			throw new NVGException("GL2ES2 compilation error. \n" + NanoVG.onFetchShaderError(pGL2ES2, pShaderId)); 
+		pGLES20.glCompileShader(pShaderId);
+		pGLES20.glGetShaderiv(pShaderId, IGLES20.GL_COMPILE_STATUS, pStatusBuffer, 0);
+		if(pStatusBuffer[0] == IGLES20.GL_NONE) { 
+			throw new NVGException("GL2ES2 compilation error. \n" + NanoVG.onFetchShaderError(pGLES20, pShaderId)); 
 		}
 	}
 	
-	private static final void onLinkProgram(final GL2ES2 pGL2ES2, final int pProgramId, final int[] pStatusBuffer) {
+	private static final void onLinkProgram(final IGLES20 pGLES20, final int pProgramId, final int[] pStatusBuffer) {
 		/* Program linking. */
-		pGL2ES2.glLinkProgram(pProgramId);
-		pGL2ES2.glGetProgramiv(pProgramId, GL2ES2.GL_LINK_STATUS, pStatusBuffer, 0);
-		if(pStatusBuffer[0] == GL2ES2.GL_NONE) { 
-			throw new NVGException("GL2ES2 linker error. \n" + NanoVG.onFetchProgramError(pGL2ES2, pProgramId)); 
+		pGLES20.glLinkProgram(pProgramId);
+		pGLES20.glGetProgramiv(pProgramId, IGLES20.GL_LINK_STATUS, pStatusBuffer, 0);
+		if(pStatusBuffer[0] == IGLES20.GL_NONE) { 
+			throw new NVGException("GL2ES2 linker error. \n" + NanoVG.onFetchProgramError(pGLES20, pProgramId)); 
 		}
 	}
 	
@@ -231,16 +230,16 @@ public class NanoVG implements GLEventListener, INanoVG {
 	}
 	
 	@Override
-	public final void onSetUniforms(final GL2ES2 pGL2ES2, final float[] pPaintArray, final NVGImage pNVGImage) {
+	public final void onSetUniforms(final IGLES20 pGLES20, final float[] pPaintArray, final NVGImage pNVGImage) {
 		/* Buffer the uniform array. */
-		pGL2ES2.glUniform4fv(this.getUniformArray(), UNIFORMARRAY_GLSL_LENGTH, pPaintArray, 0);
+		pGLES20.glUniform4fv(this.getUniformArray(), UNIFORMARRAY_GLSL_LENGTH, pPaintArray, 0);
 		/* Apply the image. */
 		if(pNVGImage != null) {
 			throw new RuntimeException("NVGImage not yet implemented.");
 		}
 		else {
 			/* Bind a null texture. */
-			pGL2ES2.glBindTexture(GL2ES2.GL_TEXTURE_2D, GL2ES2.GL_NONE);
+			pGLES20.glBindTexture(IGLES20.GL_TEXTURE_2D, IGLES20.GL_NONE);
 		}
 	}
 	
@@ -301,108 +300,105 @@ public class NanoVG implements GLEventListener, INanoVG {
 	}
 
 	@Override
-	public void init(final GLAutoDrawable pGLAutoDrawable) {
-		final GL2ES2 lGL2ES2 = pGLAutoDrawable.getGL().getGL2ES2();
+	public void init(final IGLES20 pGLES20) {
 		/* Declare method variables. */
 		int[] lStatusBuffer = new int[1];
 		/* Allocate shaders onboard the GPU. */
-		this.mVertexShader   = lGL2ES2.glCreateShader(GL2ES2.GL_VERTEX_SHADER);
-		this.mFragmentShader = lGL2ES2.glCreateShader(GL2ES2.GL_FRAGMENT_SHADER);
-		this.mRenderProgram  = lGL2ES2.glCreateProgram();
+		this.mVertexShader   = pGLES20.glCreateShader(IGLES20.GL_VERTEX_SHADER);
+		this.mFragmentShader = pGLES20.glCreateShader(IGLES20.GL_FRAGMENT_SHADER);
+		this.mRenderProgram  = pGLES20.glCreateProgram();
 		/* Delegate the shader source. */
-		lGL2ES2.glShaderSource(this.getVertexShader(),   1, new String[]{ NanoVG.SHADER_VERTEX },   new int[]{ NanoVG.SHADER_VERTEX.length() },   0);
-		lGL2ES2.glShaderSource(this.getFragmentShader(), 1, new String[]{ NanoVG.SHADER_FRAGMENT }, new int[]{ NanoVG.SHADER_FRAGMENT.length() }, 0);
+		pGLES20.glShaderSource(this.getVertexShader(),   1, new String[]{ NanoVG.SHADER_VERTEX },   new int[]{ NanoVG.SHADER_VERTEX.length() },   0);
+		pGLES20.glShaderSource(this.getFragmentShader(), 1, new String[]{ NanoVG.SHADER_FRAGMENT }, new int[]{ NanoVG.SHADER_FRAGMENT.length() }, 0);
 		/* Compile shaders. */
-		NanoVG.onCompileShader(lGL2ES2, this.getVertexShader(),   lStatusBuffer);
-		NanoVG.onCompileShader(lGL2ES2, this.getFragmentShader(), lStatusBuffer);
+		NanoVG.onCompileShader(pGLES20, this.getVertexShader(),   lStatusBuffer);
+		NanoVG.onCompileShader(pGLES20, this.getFragmentShader(), lStatusBuffer);
 		/* Attach the compiled shaders. */
-		lGL2ES2.glAttachShader(this.getRenderProgram(), this.getVertexShader());
-		lGL2ES2.glAttachShader(this.getRenderProgram(), this.getFragmentShader());
+		pGLES20.glAttachShader(this.getRenderProgram(), this.getVertexShader());
+		pGLES20.glAttachShader(this.getRenderProgram(), this.getFragmentShader());
 		/* Link the program. */
-		NanoVG.onLinkProgram(lGL2ES2, this.getRenderProgram(), lStatusBuffer);
+		NanoVG.onLinkProgram(pGLES20, this.getRenderProgram(), lStatusBuffer);
 		/* Attribute Locations. */
-		this.mAttributeVertex       = lGL2ES2.glGetAttribLocation(this.getRenderProgram(), "vertex");
-		this.mAttributeTextureCoord = lGL2ES2.glGetAttribLocation(this.getRenderProgram(), "tcoord");
+		this.mAttributeVertex       = pGLES20.glGetAttribLocation(this.getRenderProgram(), "vertex");
+		this.mAttributeTextureCoord = pGLES20.glGetAttribLocation(this.getRenderProgram(), "tcoord");
 		/* Uniform Locations. */
-		this.mUniformArray          = lGL2ES2.glGetUniformLocation(this.getRenderProgram(), "frag");
-		this.mUniformView           = lGL2ES2.glGetUniformLocation(this.getRenderProgram(), "viewSize");
-		this.mUniformTexture        = lGL2ES2.glGetUniformLocation(this.getRenderProgram(), "tex");
+		this.mUniformArray          = pGLES20.glGetUniformLocation(this.getRenderProgram(), "frag");
+		this.mUniformView           = pGLES20.glGetUniformLocation(this.getRenderProgram(), "viewSize");
+		this.mUniformTexture        = pGLES20.glGetUniformLocation(this.getRenderProgram(), "tex");
 		
 	}
 
 	@Override
-	public void reshape(final GLAutoDrawable pGLAutoDrawable, final int pX, final int pY, final int pWidth, final int pHeight) {
-		final GL2ES2 lGL2ES2 = pGLAutoDrawable.getGL().getGL2ES2();
+	public void reshape(final IGLES20 pGLES20, final int pX, final int pY, final int pWidth, final int pHeight) {
 		/* View Storage. */
 		this.mView[0] = (float)pWidth;
 		this.mView[1] = (float)pHeight;
 		/* Configure the Viewport. */
-		lGL2ES2.glViewport(0, 0, pWidth, pHeight);
+		pGLES20.glViewport(0, 0, pWidth, pHeight);
 		/* Enable a transparent display. */
-		lGL2ES2.glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
+		pGLES20.glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 	}
 	
 	@Override
-	public void display(final GLAutoDrawable pGLAutoDrawable) {
-		final GL2ES2 lGL2ES2 = pGLAutoDrawable.getGL().getGL2ES2();
+	public void display(final IGLES20 pGLES20) {
 		/* Clear the display. */
-		lGL2ES2.glClear(GL2ES2.GL_COLOR_BUFFER_BIT | GL2ES2.GL_DEPTH_BUFFER_BIT | GL2ES2.GL_STENCIL_BUFFER_BIT);
+		pGLES20.glClear(IGLES20.GL_COLOR_BUFFER_BIT | IGLES20.GL_DEPTH_BUFFER_BIT | IGLES20.GL_STENCIL_BUFFER_BIT);
 		/* Initialize broad graphical configuration. */
-		lGL2ES2.glEnable(GL2ES2.GL_BLEND);
-		lGL2ES2.glBlendFunc(GL2ES2.GL_SRC_ALPHA, GL2ES2.GL_ONE_MINUS_SRC_ALPHA);
-		lGL2ES2.glEnable(GL2ES2.GL_CULL_FACE);
-		lGL2ES2.glDisable(GL2ES2.GL_DEPTH_TEST);
+		pGLES20.glEnable(IGLES20.GL_BLEND);
+		pGLES20.glBlendFunc(IGLES20.GL_SRC_ALPHA, IGLES20.GL_ONE_MINUS_SRC_ALPHA);
+		pGLES20.glEnable(IGLES20.GL_CULL_FACE);
+		pGLES20.glDisable(IGLES20.GL_DEPTH_TEST);
 		/* Allow the NVGListener to render the frame. */
 		this.getNVGListener().onRenderFrame(this.getNVGPathBuilder(), this.getView()[0], this.getView()[1]);
 		/* Render flush. */
-		lGL2ES2.glUseProgram(this.getRenderProgram());
-		lGL2ES2.glCullFace(GL2ES2.GL_BACK);
-		lGL2ES2.glFrontFace(GL2ES2.GL_CCW);
-		lGL2ES2.glEnable(GL2ES2.GL_BLEND);
-		lGL2ES2.glDisable(GL2ES2.GL_DEPTH_TEST);
-		lGL2ES2.glDisable(GL2ES2.GL_SCISSOR_TEST);
-		lGL2ES2.glColorMask(true, true, true, true);
-		lGL2ES2.glStencilMask(0xFFFFFFFF);
-		lGL2ES2.glStencilOp(GL2ES2.GL_KEEP, GL2ES2.GL_KEEP, GL2ES2.GL_KEEP);
-		lGL2ES2.glStencilFunc(GL2ES2.GL_ALWAYS, 0, 0xFFFFFFFF);
-		lGL2ES2.glActiveTexture(GL2ES2.GL_TEXTURE0);
-		lGL2ES2.glBindTexture(GL2ES2.GL_TEXTURE_2D, 0);
+		pGLES20.glUseProgram(this.getRenderProgram());
+		pGLES20.glCullFace(IGLES20.GL_BACK);
+		pGLES20.glFrontFace(IGLES20.GL_CCW);
+		pGLES20.glEnable(IGLES20.GL_BLEND);
+		pGLES20.glDisable(IGLES20.GL_DEPTH_TEST);
+		pGLES20.glDisable(IGLES20.GL_SCISSOR_TEST);
+		pGLES20.glColorMask(true, true, true, true);
+		pGLES20.glStencilMask(0xFFFFFFFF);
+		pGLES20.glStencilOp(IGLES20.GL_KEEP, IGLES20.GL_KEEP, IGLES20.GL_KEEP);
+		pGLES20.glStencilFunc(IGLES20.GL_ALWAYS, 0, 0xFFFFFFFF);
+		pGLES20.glActiveTexture(IGLES20.GL_TEXTURE0);
+		pGLES20.glBindTexture(IGLES20.GL_TEXTURE_2D, 0);
 		/* Buffer the Texture Location. */
-		lGL2ES2.glUniform1i(this.getUniformTexture(), 0);
+		pGLES20.glUniform1i(this.getUniformTexture(), 0);
 		/* Buffer the View. */
-		lGL2ES2.glUniform2fv(this.getUniformView(), 1, this.getView(), 0);
+		pGLES20.glUniform2fv(this.getUniformView(), 1, this.getView(), 0);
 		/* Allocate a pointer towards a new VertexBuffer. */
 		int[] lVertexBufferId = new int[1];
-	    /* Attempt to allocate a new buffer. */
-		lGL2ES2.glGenBuffers(1, lVertexBufferId, 0);
+	    	/* Attempt to allocate a new buffer. */
+		pGLES20.glGenBuffers(1, lVertexBufferId, 0);
 		/* Buffer the Vertex data. */
 		final ByteBuffer lVertexData = NVGGlobal.delegateNative(this.getVertices());
 		/* Bind to the buffer. */
-		lGL2ES2.glBindBuffer(GL2ES2.GL_ARRAY_BUFFER, lVertexBufferId[0]);
+		pGLES20.glBindBuffer(IGLES20.GL_ARRAY_BUFFER, lVertexBufferId[0]);
 		/* Transfer vertex from native memory to the GPU. */
-		lGL2ES2.glBufferData(GL2ES2.GL_ARRAY_BUFFER, (this.getVerticesBufferOffset() * NVGGlobal.BYTES_PER_FLOAT), lVertexData, GL2ES2.GL_STREAM_DRAW);
+		pGLES20.glBufferData(IGLES20.GL_ARRAY_BUFFER, (this.getVerticesBufferOffset() * NVGGlobal.BYTES_PER_FLOAT), lVertexData, IGLES20.GL_STREAM_DRAW);
 		/* Enable vertex attributes. */
-		lGL2ES2.glEnableVertexAttribArray(this.getAttributeVertex());
-		lGL2ES2.glEnableVertexAttribArray(this.getAttributeTextureCoord());
+		pGLES20.glEnableVertexAttribArray(this.getAttributeVertex());
+		pGLES20.glEnableVertexAttribArray(this.getAttributeTextureCoord());
 		/* Initialize vertex stride. */
-		lGL2ES2.glVertexAttribPointer(this.getAttributeVertex(),       2, GL2ES2.GL_FLOAT, false, NVGGlobal.BYTES_PER_XYUV, 0);
-		lGL2ES2.glVertexAttribPointer(this.getAttributeTextureCoord(), 2, GL2ES2.GL_FLOAT, false, NVGGlobal.BYTES_PER_XYUV, 2 * NVGGlobal.BYTES_PER_FLOAT);
+		pGLES20.glVertexAttribPointer(this.getAttributeVertex(),       2, IGLES20.GL_FLOAT, false, NVGGlobal.BYTES_PER_XYUV, 0);
+		pGLES20.glVertexAttribPointer(this.getAttributeTextureCoord(), 2, IGLES20.GL_FLOAT, false, NVGGlobal.BYTES_PER_XYUV, 2 * NVGGlobal.BYTES_PER_FLOAT);
 		/* Iterate through each NVGCall. */
 		for(final NVGCall lNVGCall : this.getNVGCalls()) {
 			/* Render the NVGCall. */
-			lNVGCall.onRenderGraphics(this, lGL2ES2);
+			lNVGCall.onRenderGraphics(this, pGLES20);
 		}
 		/* Disable vertex attributes. */
-		lGL2ES2.glDisableVertexAttribArray(this.getAttributeVertex());
-		lGL2ES2.glDisableVertexAttribArray(this.getAttributeTextureCoord());
+		pGLES20.glDisableVertexAttribArray(this.getAttributeVertex());
+		pGLES20.glDisableVertexAttribArray(this.getAttributeTextureCoord());
 		/* Unbind from the buffer. */
-		lGL2ES2.glBindBuffer(GL2ES2.GL_ARRAY_BUFFER, GL2ES2.GL_NONE);
+		pGLES20.glBindBuffer(IGLES20.GL_ARRAY_BUFFER, IGLES20.GL_NONE);
 		/* Delete the vertex buffer. */
-		lGL2ES2.glDeleteBuffers(1, lVertexBufferId, 0);
+		pGLES20.glDeleteBuffers(1, lVertexBufferId, 0);
 		/* Disable the depth test. */
-		lGL2ES2.glEnable(GL2ES2.GL_DEPTH_TEST);
+		pGLES20.glEnable(IGLES20.GL_DEPTH_TEST);
 		/* Unbind from the program. */
-		lGL2ES2.glUseProgram(GL2ES2.GL_NONE);
+		pGLES20.glUseProgram(IGLES20.GL_NONE);
 		/* Reset the VertexOffset. */
 		this.mVerticesBufferOffset = 0;
 		/* Clear the NVGCalls. */
@@ -411,16 +407,15 @@ public class NanoVG implements GLEventListener, INanoVG {
 		this.getNVGStates().clear();
 		this.getNVGStates().add(new NVGState());
 		/* Check for errors. */
-		NanoVG.onFetchGLError(lGL2ES2);
+		NanoVG.onFetchGLError(pGLES20);
 	}
 
 	@Override
-	public void dispose(final GLAutoDrawable pGLAutoDrawable) {
-		final GL2ES2 lGL2ES2 = pGLAutoDrawable.getGL().getGL2ES2();
+	public void dispose(final IGLES20 pGLES20) {
 		/* Delete dependencies. */
-		lGL2ES2.glDeleteShader(this.getVertexShader());
-		lGL2ES2.glDeleteShader(this.getFragmentShader());
-		lGL2ES2.glDeleteProgram(this.getRenderProgram());
+		pGLES20.glDeleteShader(this.getVertexShader());
+		pGLES20.glDeleteShader(this.getFragmentShader());
+		pGLES20.glDeleteProgram(this.getRenderProgram());
 	}
 	
 	@Override
@@ -429,7 +424,6 @@ public class NanoVG implements GLEventListener, INanoVG {
 		if(this.getVerticesBufferOffset() + pVertices.length > this.getVertices().length) {
 			/* Re-allocate the array. */
 			this.mVerticesBuffer = Arrays.copyOf(this.getVertices(), NVGGlobal.toNearestPowerOfTwo(this.getVerticesBufferOffset() + pVertices.length));
-			System.out.println("Reallocated Vertices. Size: " + this.getVertices().length);
 		}
 		/* Buffer the vertices. */
 		System.arraycopy(pVertices, 0, this.getVertices(), this.getVerticesBufferOffset(), pVertices.length);
