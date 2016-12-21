@@ -23,7 +23,7 @@ public abstract class NVGCall {
 			pGLES20.glStencilMask(0xFF);
 			pGLES20.glStencilFunc(IGLES20.GL_ALWAYS, 0, 0xFF);
 			pGLES20.glColorMask(false, false, false, false);
-			pNanoVG.onSetUniforms(pGL2ES2, this.getUniformArray1(), null);
+			pNanoVG.onSetUniforms(pGLES20, this.getUniformArray1(), null);
 			
 			pGLES20.glStencilOpSeparate(IGLES20.GL_FRONT, IGLES20.GL_KEEP, IGLES20.GL_KEEP, IGLES20.GL_INCR_WRAP);
 			pGLES20.glStencilOpSeparate(IGLES20.GL_BACK,  IGLES20.GL_KEEP, IGLES20.GL_KEEP, IGLES20.GL_DECR_WRAP);

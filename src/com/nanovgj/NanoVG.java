@@ -138,7 +138,7 @@ public class NanoVG implements IGLEventListener<IGLES20>, INanoVG {
 		+"\n"+"}";
 			
 	
-	private static final String onFetchShaderError(final IGLES20 pGLES20, final int pShaderId) {
+/*	private static final String onFetchShaderError(final IGLES20 pGLES20, final int pShaderId) {
           byte[] lErrorLog = new byte[255];
           pGLES20.glGetShaderInfoLog(pShaderId, (lErrorLog.length), (int[])null, 0, lErrorLog, 0);
           return new String(lErrorLog);
@@ -149,7 +149,7 @@ public class NanoVG implements IGLEventListener<IGLES20>, INanoVG {
         pGLES20.glGetProgramInfoLog(pProgramId, (lErrorLog.length), (int[])null, 0, lErrorLog, 0);
         return new String(lErrorLog);
 	}
-	
+*/	
 	private static final void onFetchGLError(final IGLES20 pGLES20) {
 		final int lError = pGLES20.glGetError();
 		if(lError != IGLES20.GL_NO_ERROR) {
@@ -162,7 +162,7 @@ public class NanoVG implements IGLEventListener<IGLES20>, INanoVG {
 		pGLES20.glCompileShader(pShaderId);
 		pGLES20.glGetShaderiv(pShaderId, IGLES20.GL_COMPILE_STATUS, pStatusBuffer, 0);
 		if(pStatusBuffer[0] == IGLES20.GL_NONE) { 
-			throw new NVGException("GL2ES2 compilation error. \n" + NanoVG.onFetchShaderError(pGLES20, pShaderId)); 
+			throw new NVGException("GL2ES2 compilation error.");// + NanoVG.onFetchShaderError(pGLES20, pShaderId)); 
 		}
 	}
 	
@@ -171,7 +171,7 @@ public class NanoVG implements IGLEventListener<IGLES20>, INanoVG {
 		pGLES20.glLinkProgram(pProgramId);
 		pGLES20.glGetProgramiv(pProgramId, IGLES20.GL_LINK_STATUS, pStatusBuffer, 0);
 		if(pStatusBuffer[0] == IGLES20.GL_NONE) { 
-			throw new NVGException("GL2ES2 linker error. \n" + NanoVG.onFetchProgramError(pGLES20, pProgramId)); 
+			throw new NVGException("GL2ES2 linker error. \n");// NanoVG.onFetchProgramError(pGLES20, pProgramId)); 
 		}
 	}
 	
@@ -308,8 +308,10 @@ public class NanoVG implements IGLEventListener<IGLES20>, INanoVG {
 		this.mFragmentShader = pGLES20.glCreateShader(IGLES20.GL_FRAGMENT_SHADER);
 		this.mRenderProgram  = pGLES20.glCreateProgram();
 		/* Delegate the shader source. */
-		pGLES20.glShaderSource(this.getVertexShader(),   1, new String[]{ NanoVG.SHADER_VERTEX },   new int[]{ NanoVG.SHADER_VERTEX.length() },   0);
-		pGLES20.glShaderSource(this.getFragmentShader(), 1, new String[]{ NanoVG.SHADER_FRAGMENT }, new int[]{ NanoVG.SHADER_FRAGMENT.length() }, 0);
+		pGLES20.glShaderSource(this.getVertexShader(), NanoVG.SHADER_VERTEX);
+		//pGLES20.glShaderSource(this.getVertexShader(),   1, new String[]{ NanoVG.SHADER_VERTEX },   new int[]{ NanoVG.SHADER_VERTEX.length() },   0);
+		pGLES20.glShaderSource(this.getFragmentShader(), NanoVG.SHADER_FRAGMENT);
+		//pGLES20.glShaderSource(this.getFragmentShader(), 1, new String[]{ NanoVG.SHADER_FRAGMENT }, new int[]{ NanoVG.SHADER_FRAGMENT.length() }, 0);
 		/* Compile shaders. */
 		NanoVG.onCompileShader(pGLES20, this.getVertexShader(),   lStatusBuffer);
 		NanoVG.onCompileShader(pGLES20, this.getFragmentShader(), lStatusBuffer);
